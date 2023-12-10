@@ -7,26 +7,37 @@ import br.com.infnet.produtoservice.service.ProdutoService;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
 @RequestMapping("/")
 public class ProdutoController {
+    @Value("${spring.application.serverNick}")
+    private String nickName;
     @Autowired
     ProdutoService produtoService;
 
     Logger LOGGER = LoggerFactory.getLogger(ProdutoController.class);
     @GetMapping
-    public List<Produto> getAll(){
+    public ResponseEntity getAll(@RequestHeader Map<String, String> headers){
         List<Produto> all = produtoService.getAll();
         LOGGER.info("GET ALL:" + all);
-        return all;
+        LOGGER.info("All Headers:" + headers.toString());
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("server-name", nickName);
+
+
+        return ResponseEntity.ok().headers(httpHeaders).body(all);
     }
 
     @GetMapping("/{id}")
